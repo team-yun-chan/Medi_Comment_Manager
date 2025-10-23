@@ -1,0 +1,325 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { RefreshCw, Trash2, EyeOff, Eye, MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { instagramApi } from '@/lib/api'
+import { formatRelativeTime } from '@/lib/utils'
+
+export default function InstagramPage() {
+  const [pages, setPages] = useState<any[]>([])
+  const [selectedPage, setSelectedPage] = useState<any>(null)
+  const [media, setMedia] = useState<any[]>([])
+  const [selectedMedia, setSelectedMedia] = useState<any>(null)
+  const [comments, setComments] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    loadPages()
+  }, [])
+
+  const loadPages = async () => {
+    try {
+      const { data } = await instagramApi.getPages()
+      setPages(data.pages)
+      if (data.pages.length > 0) {
+        setSelectedPage(data.pages[0])
+      }
+    } catch (error) {
+      console.error('Failed to load pages:', error)
+    }
+  }
+
+  const loadMedia = async (pageId: string) => {
+    try {
+      setLoading(true)
+      const { data } = await instagramApi.getMedia(pageId)
+      setMedia(data.media)
+    } catch (error) {
+      console.error('Failed to load media:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadComments = async (mediaId: string) => {
+    try {
+      setLoading(true)
+      const { data } = await instagramApi.getComments(mediaId)
+      setComments(data.comments)
+    } catch (error) {
+      console.error('Failed to load comments:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const syncComments = async () => {
+    if (!selectedMedia || !selectedPage) return
+    try {
+      setLoading(true)
+      const { data } = await instagramApi.syncComments(selectedMedia.id, selectedPage.id)
+      setComments(data.comments)
+    } catch (error) {
+      console.error('Failed to sync comments:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const hideComment = async (commentId: string) => {
+    if (!selectedPage) return
+    try {
+      await instagramApi.hideComment(commentId, selectedPage.id)
+      setComments(
+        comments.map((c) => (c.commentId === commentId ? { ...c, hidden: true } : c))
+      )
+    } catch (error) {
+      console.error('Failed to hide comment:', error)
+      alert('댓글 숨김에 실패했습니다')
+    }
+  }
+
+  const unhideComment = async (commentId: string) => {
+    if (!selectedPage) return
+    try {
+      await instagramApi.unhideComment(commentId, selectedPage.id)
+      setComments(
+        comments.map((c) => (c.commentId === commentId ? { ...c, hidden: false } : c))
+      )
+    } catch (error) {
+      console.error('Failed to unhide comment:', error)
+      alert('댓글 숨김 해제에 실패했습니다')
+    }
+  }
+
+  const deleteComment = async (commentId: string) => {
+    if (!confirm('정말 이 댓글을 삭제하시겠습니까?')) return
+    if (!selectedPage) return
+
+    try {
+      await instagramApi.deleteComment(commentId, selectedPage.id)
+      setComments(comments.filter((c) => c.commentId !== commentId))
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+      alert('댓글 삭제에 실패했습니다')
+    }
+  }
+
+  const subscribeWebhook = async () => {
+    if (!selectedPage) return
+    try {
+      await instagramApi.subscribeWebhook(selectedPage.id)
+      alert('Webhook 구독이 완료되었습니다')
+    } catch (error) {
+      console.error('Failed to subscribe webhook:', error)
+      alert('Webhook 구독에 실패했습니다')
+    }
+  }
+
+  useEffect(() => {
+    if (selectedPage) {
+      loadMedia(selectedPage.id)
+    }
+  }, [selectedPage])
+
+  useEffect(() => {
+    if (selectedMedia) {
+      loadComments(selectedMedia.id)
+    }
+  }, [selectedMedia])
+
+  if (pages.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Instagram 페이지를 찾을 수 없습니다</CardTitle>
+          <CardDescription>
+            Instagram 계정을 먼저 연결해주세요
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Instagram 댓글</h1>
+          <p className="text-muted-foreground">
+            {pages.length}개 페이지의 댓글을 관리하세요
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={subscribeWebhook} variant="outline">
+            Webhook 구독
+          </Button>
+          <Button onClick={() => instagramApi.syncPages()}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            페이지 동기화
+          </Button>
+        </div>
+      </div>
+
+      {/* 페이지 선택 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>페이지 선택</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            {pages.map((page) => (
+              <Button
+                key={page.id}
+                variant={selectedPage?.id === page.id ? 'default' : 'outline'}
+                onClick={() => setSelectedPage(page)}
+              >
+                {page.name}
+                {page.username && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    @{page.username}
+                  </span>
+                )}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 미디어 선택 */}
+      {selectedPage && (
+        <Card>
+          <CardHeader>
+            <CardTitle>최근 게시물</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading && !media.length ? (
+              <p className="text-muted-foreground">로딩 중...</p>
+            ) : media.length === 0 ? (
+              <p className="text-muted-foreground">게시물이 없습니다</p>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {media.slice(0, 12).map((item) => (
+                  <button
+                    key={item.id}
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedMedia?.mediaId === item.id
+                        ? 'border-primary'
+                        : 'border-transparent hover:border-accent'
+                    }`}
+                    onClick={() => setSelectedMedia(item)}
+                  >
+                    {item.media_url && (
+                      <img
+                        src={item.media_url}
+                        alt={item.caption || ''}
+                        className="object-cover w-full h-full"
+                      />
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2">
+                      <p className="text-xs line-clamp-2">{item.caption || '캡션 없음'}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 댓글 목록 */}
+      {selectedMedia && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>댓글 목록</CardTitle>
+                <CardDescription>{comments.length}개 댓글</CardDescription>
+              </div>
+              <Button onClick={syncComments} disabled={loading}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                동기화
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {comments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageCircle className="h-8 w-8 mx-auto mb-2" />
+                <p>댓글이 없습니다</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>사용자</TableHead>
+                    <TableHead>댓글</TableHead>
+                    <TableHead>좋아요</TableHead>
+                    <TableHead>상태</TableHead>
+                    <TableHead>작성일</TableHead>
+                    <TableHead>액션</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {comments.map((comment) => (
+                    <TableRow key={comment.id}>
+                      <TableCell className="font-medium">
+                        @{comment.username}
+                      </TableCell>
+                      <TableCell className="max-w-md">
+                        <p className="line-clamp-2">{comment.text}</p>
+                      </TableCell>
+                      <TableCell>{comment.likeCount}</TableCell>
+                      <TableCell>
+                        {comment.hidden ? (
+                          <Badge variant="destructive">숨김</Badge>
+                        ) : (
+                          <Badge variant="secondary">공개</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatRelativeTime(comment.timestamp)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          {comment.hidden ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => unhideComment(comment.commentId)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => hideComment(comment.commentId)}
+                            >
+                              <EyeOff className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteComment(comment.commentId)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}

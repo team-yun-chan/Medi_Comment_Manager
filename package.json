@@ -1,0 +1,20 @@
+{
+  "name": "social-comment-saas",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "build": "pnpm --parallel --filter './apps/*' build",
+    "db:push": "pnpm --filter @repo/db prisma db push",
+    "db:studio": "pnpm --filter @repo/db prisma studio"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}
