@@ -12,435 +12,146 @@
             padding: 40px 20px;
             line-height: 1.8;
             color: #333;
-            background: #f9fafb;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         h1 {
             color: #1a1a1a;
-            border-bottom: 3px solid #ef4444;
+            border-bottom: 3px solid #4285f4;
             padding-bottom: 10px;
-            margin-bottom: 30px;
         }
         h2 {
-            color: #374151;
+            color: #2c3e50;
             margin-top: 40px;
-            margin-bottom: 15px;
-            font-size: 1.5em;
         }
         h3 {
-            color: #4b5563;
+            color: #34495e;
             margin-top: 25px;
-            margin-bottom: 10px;
-            font-size: 1.2em;
         }
-        h4 {
-            color: #6b7280;
-            margin-top: 20px;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        p {
-            margin-bottom: 15px;
-        }
-        ul, ol {
-            margin-bottom: 15px;
-            padding-left: 30px;
-        }
-        li {
-            margin-bottom: 8px;
-        }
-        .meta {
-            color: #6b7280;
-            font-size: 0.9em;
-            margin-bottom: 30px;
-        }
-        .warning {
-            background: #fef2f2;
-            border-left: 4px solid #ef4444;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .info {
-            background: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .success {
-            background: #f0fdf4;
-            border-left: 4px solid #22c55e;
-            padding: 15px;
+        .method-box {
+            background: #f8f9fa;
+            border-left: 4px solid #4285f4;
+            padding: 20px;
             margin: 20px 0;
         }
         code {
-            background: #f3f4f6;
+            background: #f5f5f5;
             padding: 2px 6px;
             border-radius: 3px;
             font-family: 'Courier New', monospace;
-            font-size: 0.9em;
         }
-        .btn {
-            display: inline-block;
-            background: #ef4444;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin: 10px 5px;
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
         }
-        .btn:hover {
-            background: #dc2626;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #e5e7eb;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background: #f3f4f6;
-            font-weight: 600;
-        }
-        a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+        li {
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>데이터 삭제 정책</h1>
-        <p class="meta">
-            <strong>최종 업데이트</strong>: 2025년 1월 1일<br>
-            <strong>서비스명</strong>: Social Comment Manager
-        </p>
+    <h1>데이터 삭제 정책 (Data Deletion Policy)</h1>
+    <p><strong>최종 업데이트</strong>: 2025년 1월 1일</p>
 
-        <h2>1. 개요</h2>
-        <p>Social Comment Manager는 사용자의 <strong>"잊혀질 권리"</strong>를 존중합니다. 본 문서는 사용자가 개인정보 및 계정 데이터를 삭제하는 방법을 설명합니다.</p>
+    <h2>1. 개요</h2>
+    <p>Social Comment Manager는 사용자의 "잊혀질 권리"를 존중합니다. 본 문서는 사용자가 개인정보 및 계정 데이터를 삭제하는 방법을 설명합니다.</p>
 
-        <h2>2. 삭제 가능한 데이터</h2>
-        
-        <h3>2.1 사용자 계정 데이터</h3>
-        <ul>
-            <li>이름, 이메일, 프로필 사진</li>
-            <li>로그인 이력</li>
-            <li>계정 설정</li>
-        </ul>
+    <h2>2. 삭제 가능한 데이터</h2>
+    <ul>
+        <li>사용자 계정 정보 (이름, 이메일, 프로필)</li>
+        <li>Google (YouTube) 연동 정보 및 댓글 데이터</li>
+        <li>Meta (Instagram) 연동 정보 및 댓글 데이터</li>
+        <li>OAuth 액세스 토큰</li>
+        <li>모더레이션 규칙 및 설정</li>
+        <li>감사 로그 (90일 이내)</li>
+    </ul>
 
-        <h3>2.2 연동 계정 데이터</h3>
-        <h4>Google (YouTube)</h4>
-        <ul>
-            <li>채널 정보</li>
-            <li>비디오 정보</li>
-            <li>댓글 데이터</li>
-            <li>OAuth 토큰</li>
-        </ul>
+    <h2>3. 데이터 삭제 방법</h2>
 
-        <h4>Meta (Instagram)</h4>
-        <ul>
-            <li>페이지 정보</li>
-            <li>Instagram 계정 정보</li>
-            <li>게시물 정보</li>
-            <li>댓글 데이터</li>
-            <li>액세스 토큰</li>
-        </ul>
-
-        <h3>2.3 사용 기록</h3>
-        <ul>
-            <li>댓글 관리 액션 (숨김, 삭제, 답글)</li>
-            <li>모더레이션 규칙</li>
-            <li>통계 데이터</li>
-        </ul>
-
-        <h2>3. 데이터 삭제 방법</h2>
-
+    <div class="method-box">
         <h3>방법 1: 대시보드에서 직접 삭제 (권장)</h3>
-
-        <h4>3.1 부분 삭제: 연동 해제</h4>
-        
-        <div class="info">
-            <strong>YouTube 연동 해제</strong>
-            <ol>
-                <li>https://your-domain.com/dashboard/settings 접속</li>
-                <li>"YouTube (Google)" 섹션 찾기</li>
-                <li>[연동 해제] 버튼 클릭</li>
-                <li>확인 팝업 → "해제" 클릭</li>
-            </ol>
-            <p><strong>삭제되는 데이터</strong>:</p>
-            <ul>
-                <li>✅ OAuth 토큰 (즉시 삭제)</li>
-                <li>✅ 채널 정보 (30일 후 완전 삭제)</li>
-                <li>✅ 비디오 정보 (30일 후 완전 삭제)</li>
-                <li>✅ 댓글 데이터 (30일 후 완전 삭제)</li>
-            </ul>
-        </div>
-
-        <div class="info">
-            <strong>Instagram 연동 해제</strong>
-            <ol>
-                <li>https://your-domain.com/dashboard/settings 접속</li>
-                <li>"Instagram (Meta)" 섹션 찾기</li>
-                <li>[연동 해제] 버튼 클릭</li>
-                <li>확인 팝업 → "해제" 클릭</li>
-            </ol>
-            <p><strong>삭제되는 데이터</strong>:</p>
-            <ul>
-                <li>✅ 페이지 액세스 토큰 (즉시 삭제)</li>
-                <li>✅ 페이지 정보 (30일 후 완전 삭제)</li>
-                <li>✅ Instagram 계정 정보 (30일 후 완전 삭제)</li>
-                <li>✅ 게시물 정보 (30일 후 완전 삭제)</li>
-                <li>✅ 댓글 데이터 (30일 후 완전 삭제)</li>
-            </ul>
-        </div>
-
-        <h4>3.2 완전 삭제: 계정 삭제</h4>
-        
-        <div class="warning">
-            <strong>⚠️ 경고: 계정 삭제는 되돌릴 수 없습니다.</strong>
-            <p><strong>삭제되는 데이터</strong>:</p>
-            <ul>
-                <li>모든 연동 계정 (YouTube, Instagram)</li>
-                <li>모든 댓글 데이터</li>
-                <li>모든 모더레이션 규칙</li>
-                <li>모든 통계 데이터</li>
-                <li>백업 데이터 (30일 후)</li>
-            </ul>
-        </div>
-
-        <p><strong>계정 삭제 절차</strong>:</p>
         <ol>
-            <li>https://your-domain.com/dashboard/settings 접속</li>
-            <li>페이지 하단 "계정 관리" 섹션</li>
-            <li>[계정 삭제] 버튼 클릭 (빨간색)</li>
-            <li>"DELETE"를 입력하여 확인</li>
-            <li>[최종 삭제] 버튼 클릭</li>
-            <li>확인 이메일 수신</li>
+            <li>로그인 후 대시보드 접속</li>
+            <li>설정 → 계정 관리</li>
+            <li>"계정 삭제" 버튼 클릭</li>
+            <li>확인 후 "DELETE" 입력</li>
+            <li>최종 삭제 버튼 클릭</li>
         </ol>
+        <p><strong>처리 기간</strong>: 즉시 비활성화, 7일 이내 완전 삭제</p>
+    </div>
 
-        <h3>삭제 타임라인</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>시점</th>
-                    <th>삭제되는 데이터</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>즉시 (0일)</strong></td>
-                    <td>
-                        • OAuth/액세스 토큰 삭제<br>
-                        • 로그인 세션 무효화<br>
-                        • 계정 비활성화
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>7일 이내</strong></td>
-                    <td>
-                        • 사용자 정보 삭제<br>
-                        • 연동 계정 정보 삭제<br>
-                        • 댓글 데이터 삭제
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>30일 이내</strong></td>
-                    <td>
-                        • 백업 데이터 완전 삭제<br>
-                        • 로그 데이터 삭제<br>
-                        • 모든 흔적 제거
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
+    <div class="method-box">
         <h3>방법 2: 이메일 요청</h3>
-        
-        <p>대시보드 접근이 불가능한 경우:</p>
-        
-        <div class="info">
-            <p><strong>요청 방법</strong>:</p>
-            <ol>
-                <li>support@your-domain.com 으로 이메일 발송</li>
-                <li><strong>제목</strong>: "계정 삭제 요청 (Data Deletion Request)"</li>
-                <li><strong>본문 포함 사항</strong>:
-                    <ul>
-                        <li>이름: [이름]</li>
-                        <li>이메일: [등록된 이메일]</li>
-                        <li>요청 사항: 계정 및 모든 데이터 삭제</li>
-                        <li>사유 (선택): [사유]</li>
-                    </ul>
-                </li>
-                <li><strong>신원 확인</strong>: 등록된 이메일에서 발송 필요</li>
-                <li><strong>처리 기간</strong>: 7 영업일 이내</li>
-                <li><strong>완료 통보</strong>: 이메일로 삭제 완료 안내</li>
-            </ol>
-        </div>
+        <p><strong>이메일</strong>: support@yourdomain.com</p>
+        <p><strong>제목</strong>: 계정 삭제 요청 (Data Deletion Request)</p>
+        <p><strong>본문 포함 사항</strong>:</p>
+        <ul>
+            <li>이름</li>
+            <li>등록된 이메일 주소</li>
+            <li>요청 사유 (선택)</li>
+        </ul>
+        <p><strong>처리 기간</strong>: 7 영업일 이내</p>
+    </div>
 
+    <div class="method-box">
         <h3>방법 3: Google/Meta에서 직접 삭제</h3>
-
-        <h4>Google (YouTube) 데이터 삭제</h4>
+        <p><strong>Google</strong>:</p>
         <ol>
             <li><a href="https://myaccount.google.com/permissions" target="_blank">Google 계정 설정</a> 접속</li>
-            <li>"타사 앱 액세스 권한" 섹션</li>
-            <li>"Social Comment Manager" 찾기</li>
-            <li>[액세스 권한 삭제] 클릭</li>
+            <li>"타사 앱 액세스 권한" → "Social Comment Manager" 찾기</li>
+            <li>"액세스 권한 삭제" 클릭</li>
         </ol>
-        
-        <div class="warning">
-            <strong>⚠️ 주의</strong>
-            <ul>
-                <li>✅ OAuth 토큰 즉시 무효화</li>
-                <li>✅ Google 측에서 권한 철회</li>
-                <li>⚠️ 우리 서버의 데이터는 자동 삭제되지 않음</li>
-                <li>💡 <strong>권장</strong>: 방법 1 또는 방법 2로 완전 삭제 요청</li>
-            </ul>
-        </div>
-
-        <h4>Meta (Instagram) 데이터 삭제</h4>
+        <p><strong>Meta</strong>:</p>
         <ol>
             <li><a href="https://www.facebook.com/settings?tab=business_tools" target="_blank">Facebook 설정</a> 접속</li>
-            <li>"비즈니스 통합" 섹션</li>
-            <li>"Social Comment Manager" 찾기</li>
-            <li>[삭제] 클릭</li>
+            <li>"비즈니스 통합" → "Social Comment Manager" 찾기</li>
+            <li>"삭제" 클릭</li>
         </ol>
-        
-        <div class="warning">
-            <strong>⚠️ 주의</strong>
-            <ul>
-                <li>✅ 페이지 액세스 토큰 무효화</li>
-                <li>✅ Meta 측에서 권한 철회</li>
-                <li>⚠️ 우리 서버의 데이터는 자동 삭제되지 않음</li>
-                <li>💡 <strong>권장</strong>: 방법 1 또는 방법 2로 완전 삭제 요청</li>
-            </ul>
-        </div>
-
-        <h2>4. 삭제 범위 및 제외 사항</h2>
-
-        <h3>4.1 삭제되는 데이터 (완전 삭제)</h3>
-        <ul>
-            <li>✅ 사용자 계정 정보</li>
-            <li>✅ 연동 계정 정보 (YouTube, Instagram)</li>
-            <li>✅ OAuth/액세스 토큰</li>
-            <li>✅ 댓글 데이터 (조회한 댓글 내용)</li>
-            <li>✅ 모더레이션 규칙</li>
-            <li>✅ 통계 데이터</li>
-            <li>✅ 로그 데이터 (90일 이내)</li>
-            <li>✅ 백업 데이터 (30일 이내)</li>
-        </ul>
-
-        <h3>4.2 삭제되지 않는 데이터</h3>
-        <ul>
-            <li>❌ <strong>YouTube/Instagram에 원본으로 존재하는 댓글</strong>
-                <ul>
-                    <li>이유: 우리는 댓글을 복사한 것이며, 원본은 소셜 미디어에 있음</li>
-                    <li>삭제 방법: YouTube/Instagram에서 직접 삭제</li>
-                </ul>
-            </li>
-            <li>❌ <strong>익명화된 통계 데이터</strong> (집계된 데이터)
-                <ul>
-                    <li>예: "전체 사용자의 평균 댓글 관리 수"</li>
-                    <li>개인 식별 불가능</li>
-                </ul>
-            </li>
-            <li>❌ <strong>법적 의무로 보관해야 하는 데이터</strong>
-                <ul>
-                    <li>재무 기록 (결제 시)</li>
-                    <li>법원 명령에 따른 데이터</li>
-                </ul>
-            </li>
-        </ul>
-
-        <h2>5. 자주 묻는 질문 (FAQ)</h2>
-
-        <h3>Q1: 계정을 삭제하면 YouTube/Instagram의 댓글도 삭제되나요?</h3>
-        <p><strong>A</strong>: 아니요. 우리 서비스에서 <strong>조회한 댓글 데이터</strong>만 삭제됩니다. YouTube/Instagram의 원본 댓글은 영향을 받지 않습니다. 원본을 삭제하려면 해당 플랫폼에서 직접 삭제해야 합니다.</p>
-
-        <h3>Q2: 연동 해제와 계정 삭제의 차이는?</h3>
-        <p><strong>A</strong>:</p>
-        <ul>
-            <li><strong>연동 해제</strong>: 특정 플랫폼(YouTube 또는 Instagram) 데이터만 삭제, 계정은 유지</li>
-            <li><strong>계정 삭제</strong>: 모든 데이터 및 계정 완전 삭제</li>
-        </ul>
-
-        <h3>Q3: 삭제 후 복구 가능한가요?</h3>
-        <p><strong>A</strong>: 7일 이내에만 복구 요청 가능. 7일 후에는 완전 삭제되어 복구 불가능.</p>
-
-        <h3>Q4: 삭제 처리 기간은 얼마나 걸리나요?</h3>
-        <p><strong>A</strong>:</p>
-        <ul>
-            <li>대시보드에서 삭제: 즉시 처리 (7일 후 완전 삭제)</li>
-            <li>이메일 요청: 7 영업일 이내 처리</li>
-        </ul>
-
-        <h3>Q5: 백업 데이터는 언제 삭제되나요?</h3>
-        <p><strong>A</strong>: 계정 삭제 후 30일 이내에 모든 백업에서 제거됩니다.</p>
-
-        <h3>Q6: 삭제 확인을 어떻게 받나요?</h3>
-        <p><strong>A</strong>: 등록된 이메일로 확인 메일 발송. 로그인 시도 시 "계정 없음" 오류로도 확인 가능.</p>
-
-        <h2>6. 데이터 복구 정책</h2>
-
-        <h3>6.1 복구 가능 기간</h3>
-        <ul>
-            <li><strong>7일 이내</strong>: 요청 시 계정 복구 가능
-                <ul>
-                    <li>방법: support@your-domain.com 으로 복구 요청</li>
-                    <li>조건: 신원 확인 필요</li>
-                </ul>
-            </li>
-            <li><strong>7일 이후</strong>: 복구 불가능
-                <ul>
-                    <li>데이터 완전 삭제됨</li>
-                    <li>새 계정 생성 필요</li>
-                </ul>
-            </li>
-        </ul>
-
-        <h2>7. 연락처</h2>
-        
-        <div class="success">
-            <p><strong>데이터 삭제 관련 문의</strong>:</p>
-            <ul>
-                <li><strong>이메일</strong>: support@your-domain.com</li>
-                <li><strong>제목</strong>: 데이터 삭제 문의 (Data Deletion Inquiry)</li>
-                <li><strong>응답 시간</strong>: 영업일 기준 48시간 이내</li>
-            </ul>
-        </div>
-
-        <div class="warning">
-            <p><strong>긴급 삭제 요청 (법적 사유)</strong>:</p>
-            <ul>
-                <li><strong>이메일</strong>: legal@your-domain.com</li>
-                <li><strong>응답 시간</strong>: 24시간 이내</li>
-            </ul>
-        </div>
-
-        <h2>8. 관련 링크</h2>
-        <ul>
-            <li><a href="/privacy-policy">개인정보 처리방침</a></li>
-            <li><a href="/terms">서비스 약관</a></li>
-            <li><a href="https://policies.google.com/privacy" target="_blank">Google 개인정보 보호</a></li>
-            <li><a href="https://www.facebook.com/privacy/policy" target="_blank">Meta 데이터 정책</a></li>
-        </ul>
-
-        <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-        
-        <p class="meta" style="text-align: center;">
-            <strong>최종 업데이트</strong>: 2025년 1월 1일<br>
-            본 정책은 GDPR, CCPA, 한국 개인정보보호법을 준수합니다.
-        </p>
+        <p><strong>⚠️ 주의</strong>: 이 방법은 OAuth 권한만 철회합니다. 우리 서버의 데이터는 방법 1 또는 2로 별도 삭제 요청하세요.</p>
     </div>
+
+    <h2>4. 삭제 타임라인</h2>
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tr style="background: #f8f9fa;">
+            <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">시간</th>
+            <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">작업</th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 12px;">즉시 (0일)</td>
+            <td style="border: 1px solid #ddd; padding: 12px;">OAuth 토큰 삭제, 로그인 세션 무효화, 계정 비활성화</td>
+        </tr>
+        <tr style="background: #f8f9fa;">
+            <td style="border: 1px solid #ddd; padding: 12px;">7일 이내</td>
+            <td style="border: 1px solid #ddd; padding: 12px;">사용자 정보, 연동 계정, 댓글 데이터 완전 삭제</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 12px;">30일 이내</td>
+            <td style="border: 1px solid #ddd; padding: 12px;">백업 데이터, 로그 데이터 완전 삭제</td>
+        </tr>
+    </table>
+
+    <h2>5. 삭제되지 않는 데이터</h2>
+    <ul>
+        <li>YouTube/Instagram 원본 댓글 (원본 플랫폼에서 직접 삭제 필요)</li>
+        <li>익명화된 통계 데이터 (개인 식별 불가)</li>
+        <li>법적 의무로 보관해야 하는 데이터</li>
+    </ul>
+
+    <h2>6. 데이터 복구</h2>
+    <ul>
+        <li><strong>7일 이내</strong>: 복구 요청 가능 (support@yourdomain.com)</li>
+        <li><strong>7일 이후</strong>: 복구 불가능 (완전 삭제됨)</li>
+    </ul>
+
+    <h2>7. 연락처</h2>
+    <p>데이터 삭제 관련 문의:</p>
+    <ul>
+        <li><strong>이메일</strong>: support@yourdomain.com</li>
+        <li><strong>제목</strong>: 데이터 삭제 문의 (Data Deletion Inquiry)</li>
+        <li><strong>응답 시간</strong>: 영업일 기준 48시간 이내</li>
+    </ul>
+
+    <hr style="margin: 40px 0;">
+    <p style="text-align: center; color: #999; font-size: 14px;">
+        © 2025 Social Comment Manager. All rights reserved.
+    </p>
 </body>
 </html>
