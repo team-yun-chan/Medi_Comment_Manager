@@ -1,96 +1,303 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>개인정보처리방침 | YourApp</title>
-  <style>
-    body { max-width: 800px; margin: 40px auto; font-family: Arial, sans-serif; line-height: 1.7; color: #222; }
-    h1, h2 { color: #333; }
-    hr { margin: 2rem 0; }
-    .en { color: #444; font-size: 0.96em; margin-top: 4px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보 처리방침 - Social Comment Manager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.8;
+            color: #333;
+            background: #f9fafb;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #374151;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #4b5563;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .meta {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-  <h1>개인정보처리방침 (Privacy Policy)</h1>
-  <p><strong>최종 수정일 (Last Updated):</strong> 2025년 10월 13일</p>
-  <hr />
+    <div class="container">
+        <h1>개인정보 처리방침</h1>
+        <p class="meta">
+            <strong>최종 업데이트</strong>: 2025년 1월 1일<br>
+            <strong>서비스명</strong>: Social Comment Manager<br>
+            <strong>연락처</strong>: support@your-domain.com
+        </p>
 
-  <h2>1. 개인정보 수집 항목 (Information We Collect)</h2>
-  <p>
-    본 서비스(“YourApp”)는 Meta 플랫폼(Facebook, Instagram) 계정 연동 과정에서 다음 정보를 수집할 수 있습니다.<br>
-    - 사용자 고유 ID, 이름, 프로필 사진, 이메일 주소 (Meta 로그인 인증 시)<br>
-    - 연결된 페이지 및 인스타그램 프로페셔널 계정 정보 (페이지명, ID 등)<br>
-    - 게시물, 댓글, 인사이트 등 이용자가 직접 요청한 데이터
-  </p>
-  <p class="en">
-    The Service (“YourApp”) may collect the following information during Meta platform (Facebook, Instagram) integration:<br>
-    - User ID, name, profile picture, and email address (via Meta Login authentication)<br>
-    - Connected Facebook Page and Instagram Professional account information (page name, ID, etc.)<br>
-    - Posts, comments, insights, and other data explicitly requested by the user
-  </p>
+        <h2>1. 개요</h2>
+        <p>Social Comment Manager("서비스")는 YouTube 및 Instagram 댓글을 관리하는 웹 기반 서비스입니다. 본 개인정보 처리방침은 서비스 이용 시 수집, 사용, 공유, 저장되는 개인정보에 대해 설명합니다.</p>
 
-  <h2>2. 수집 및 이용 목적 (Purpose of Collection and Use)</h2>
-  <p>
-    수집된 정보는 사용자 계정 인증, 계정 관리, 콘텐츠 및 인사이트 데이터 조회, 서비스 품질 향상 목적에 한하여 사용됩니다.
-  </p>
-  <p class="en">
-    The collected data is used solely for account authentication, account management, displaying content and insight data, and improving overall service quality.
-  </p>
+        <h2>2. 수집하는 정보</h2>
+        
+        <h3>2.1 Google (YouTube) 연동 시</h3>
+        <ul>
+            <li><strong>기본 정보</strong>: 이름, 이메일 주소, 프로필 사진</li>
+            <li><strong>YouTube 채널 정보</strong>: 채널 ID, 채널명, 구독자 수</li>
+            <li><strong>YouTube 비디오 정보</strong>: 비디오 ID, 제목, 설명, 게시일</li>
+            <li><strong>YouTube 댓글</strong>: 댓글 내용, 작성자명, 작성일, 좋아요 수</li>
+            <li><strong>액세스 토큰</strong>: Google OAuth 2.0 액세스 토큰 및 리프레시 토큰</li>
+        </ul>
 
-  <h2>3. 보유 및 이용 기간 (Data Retention)</h2>
-  <p>
-    사용자가 Meta 계정을 연결한 동안에만 데이터를 보관하며, 연결 해제 또는 삭제 요청 시 즉시 삭제합니다.
-  </p>
-  <p class="en">
-    Data is retained only while the user keeps their Meta account connected. All data is deleted immediately upon disconnection or upon the user's deletion request.
-  </p>
+        <h3>2.2 Meta (Instagram) 연동 시</h3>
+        <ul>
+            <li><strong>기본 정보</strong>: 이름, 이메일 주소</li>
+            <li><strong>Facebook 페이지 정보</strong>: 페이지 ID, 페이지명</li>
+            <li><strong>Instagram 계정 정보</strong>: Instagram 사용자 ID, 사용자명</li>
+            <li><strong>Instagram 게시물</strong>: 게시물 ID, 캡션, 게시일</li>
+            <li><strong>Instagram 댓글</strong>: 댓글 내용, 작성자명, 작성일, 좋아요 수</li>
+            <li><strong>액세스 토큰</strong>: Meta 페이지 액세스 토큰</li>
+        </ul>
 
-  <h2>4. 제3자 제공 (Third-Party Disclosure)</h2>
-  <p>
-    회사는 이용자의 개인정보를 제3자에게 제공하지 않으며, 법적 요구가 있을 경우에만 관련 기관에 제공합니다.
-  </p>
-  <p class="en">
-    We do not share any user data with third parties. Data may only be disclosed to authorized authorities when required by applicable laws.
-  </p>
+        <h3>2.3 자동으로 수집되는 정보</h3>
+        <ul>
+            <li><strong>로그 데이터</strong>: IP 주소, 브라우저 타입, 접속 시간, 페이지 조회 기록</li>
+            <li><strong>쿠키</strong>: 세션 유지 및 사용자 선호도 저장</li>
+            <li><strong>사용 통계</strong>: 기능 사용 빈도, 댓글 관리 액션 기록</li>
+        </ul>
 
-  <h2>5. 보호 조치 (Security Measures)</h2>
-  <p>
-    접근 권한 최소화, 암호화 저장, HTTPS 통신, 토큰 만료 관리 등 안전조치를 적용합니다.
-  </p>
-  <p class="en">
-    We apply security measures such as limited access control, encrypted storage, HTTPS communication, and token expiration management.
-  </p>
+        <h2>3. 정보 사용 목적</h2>
+        
+        <h3>3.1 서비스 제공</h3>
+        <ul>
+            <li>사용자 인증 및 로그인</li>
+            <li>YouTube/Instagram 댓글 조회 및 관리</li>
+            <li>댓글 자동 모더레이션</li>
+            <li>댓글 통계 및 분석 제공</li>
+        </ul>
 
-  <h2>6. 이용자 권리 및 삭제 방법 (User Rights & Data Deletion)</h2>
-  <p>
-    사용자는 Meta 설정 또는 본 서비스의 '연결 해제' 기능을 통해 언제든 계정 연동을 종료할 수 있으며, 관련 데이터는 즉시 삭제됩니다.<br>
-    별도 삭제 요청은 <strong>tjftkswjd@naver.com</strong> 으로 이메일을 보내주세요.
-  </p>
-  <p class="en">
-    Users may disconnect their Meta account at any time via Meta settings or through the Service's “Disconnect” feature.  
-    All related data will be deleted immediately upon disconnection.  
-    For manual deletion requests, please contact us at <strong>tjftkswjd@naver.com</strong>.
-  </p>
+        <h3>3.2 서비스 개선</h3>
+        <ul>
+            <li>기능 사용 패턴 분석</li>
+            <li>버그 수정 및 성능 개선</li>
+            <li>새로운 기능 개발</li>
+        </ul>
 
-  <h2>7. 개인정보 보호 책임자 (Data Protection Officer)</h2>
-  <p>
-    담당자: 개인정보 보호 책임자<br>
-    이메일: <strong>tjftkswjd@naver.com</strong><br>
-    주소: [회사 주소 입력]
-  </p>
-  <p class="en">
-    Data Protection Officer: Privacy Manager<br>
-    Email: <strong>tjftkswjd@naver.com</strong><br>
-    Address: [Enter your company address]
-  </p>
+        <h2>4. 정보 공유 및 제3자 제공</h2>
+        
+        <h3>4.1 제3자 서비스</h3>
+        <p>본 서비스는 다음 제3자 서비스를 사용합니다:</p>
+        
+        <h4>Google (YouTube)</h4>
+        <ul>
+            <li><strong>목적</strong>: YouTube 댓글 조회 및 관리</li>
+            <li><strong>공유 정보</strong>: OAuth 액세스 토큰 (사용자 승인 필요)</li>
+            <li><strong>개인정보 처리방침</strong>: <a href="https://policies.google.com/privacy" target="_blank">https://policies.google.com/privacy</a></li>
+        </ul>
 
-  <hr />
-  <p style="font-size:0.9em;color:#666;">
-    본 개인정보처리방침은 법령 변경 또는 서비스 개선에 따라 사전 공지 없이 변경될 수 있습니다.<br>
-    (c) 2025 YourApp. All rights reserved.<br>
-    <span class="en">This Privacy Policy may be updated without prior notice due to changes in law or service improvements.<br>(c) 2025 YourApp. All rights reserved.</span>
-  </p>
+        <h4>Meta (Facebook/Instagram)</h4>
+        <ul>
+            <li><strong>목적</strong>: Instagram 댓글 조회 및 관리</li>
+            <li><strong>공유 정보</strong>: 페이지 액세스 토큰 (사용자 승인 필요)</li>
+            <li><strong>개인정보 처리방침</strong>: <a href="https://www.facebook.com/privacy/policy" target="_blank">https://www.facebook.com/privacy/policy</a></li>
+        </ul>
+
+        <h3>4.2 공유하지 않는 정보</h3>
+        <p>본 서비스는 다음과 같이 정보를 <span class="highlight">공유하지 않습니다</span>:</p>
+        <ul>
+            <li>❌ 광고 목적으로 제3자에게 판매</li>
+            <li>❌ 마케팅 목적으로 외부 업체에 제공</li>
+            <li>❌ 사용자 동의 없이 정보 공유</li>
+        </ul>
+
+        <h2>5. 데이터 저장 및 보안</h2>
+        
+        <h3>5.1 보안 조치</h3>
+        <ul>
+            <li><strong>암호화</strong>: HTTPS/TLS 1.3, 데이터베이스 암호화 (AES-256)</li>
+            <li><strong>접근 제어</strong>: 역할 기반 접근 제어 (RBAC), 최소 권한 원칙</li>
+            <li><strong>모니터링</strong>: 24/7 시스템 모니터링, 이상 활동 감지</li>
+        </ul>
+
+        <h3>5.2 보관 기간</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>데이터 타입</th>
+                    <th>보관 기간</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>사용자 계정 정보</td>
+                    <td>계정 삭제 시까지</td>
+                </tr>
+                <tr>
+                    <td>댓글 데이터</td>
+                    <td>연동 해제 후 30일</td>
+                </tr>
+                <tr>
+                    <td>액세스 토큰</td>
+                    <td>만료 또는 해제 시 즉시 삭제</td>
+                </tr>
+                <tr>
+                    <td>로그 데이터</td>
+                    <td>90일</td>
+                </tr>
+                <tr>
+                    <td>백업 데이터</td>
+                    <td>30일</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>6. 사용자 권리</h2>
+        
+        <h3>6.1 접근 권리</h3>
+        <p>사용자는 자신의 개인정보에 접근할 권리가 있습니다.</p>
+        <ul>
+            <li>대시보드 &gt; 설정 &gt; 내 정보 에서 확인 가능</li>
+        </ul>
+
+        <h3>6.2 수정 권리</h3>
+        <p>사용자는 부정확한 정보를 수정할 권리가 있습니다.</p>
+        <ul>
+            <li>대시보드 &gt; 설정 &gt; 프로필 편집</li>
+        </ul>
+
+        <h3>6.3 삭제 권리 (잊혀질 권리)</h3>
+        <p>사용자는 계정 및 모든 데이터 삭제를 요청할 권리가 있습니다.</p>
+        <ul>
+            <li><strong>방법 1</strong>: 대시보드 &gt; 설정 &gt; 계정 삭제</li>
+            <li><strong>방법 2</strong>: support@your-domain.com 으로 요청</li>
+            <li><strong>처리 기간</strong>: 30일 이내</li>
+        </ul>
+        <p>자세한 내용: <a href="/data-deletion">데이터 삭제 정책</a></p>
+
+        <h3>6.4 이동 권리 (데이터 포터빌리티)</h3>
+        <p>사용자는 자신의 데이터를 다운로드할 권리가 있습니다.</p>
+        <ul>
+            <li>대시보드 &gt; 설정 &gt; 데이터 다운로드</li>
+            <li><strong>형식</strong>: JSON, CSV</li>
+        </ul>
+
+        <h2>7. 쿠키 정책</h2>
+        
+        <h3>7.1 사용하는 쿠키</h3>
+        
+        <h4>필수 쿠키 (Strictly Necessary)</h4>
+        <ul>
+            <li><code>session_id</code>: 로그인 세션 유지</li>
+            <li><code>csrf_token</code>: CSRF 공격 방지</li>
+            <li><strong>만료</strong>: 브라우저 종료 시</li>
+        </ul>
+
+        <h4>기능 쿠키 (Functional)</h4>
+        <ul>
+            <li><code>theme_preference</code>: 다크모드 설정</li>
+            <li><code>language</code>: 언어 설정</li>
+            <li><strong>만료</strong>: 1년</li>
+        </ul>
+
+        <h2>8. 아동의 개인정보</h2>
+        <p>본 서비스는 만 13세 미만 아동을 대상으로 하지 않습니다.</p>
+        <ul>
+            <li>만 13세 미만이 서비스를 사용한 것으로 확인되면 즉시 계정 삭제</li>
+            <li>부모/보호자는 support@your-domain.com 으로 문의 가능</li>
+        </ul>
+
+        <h2>9. 국제 데이터 전송</h2>
+        <p>본 서비스는 [국가]에서 운영되며, 데이터는 해당 국가의 서버에 저장됩니다.</p>
+        <ul>
+            <li><strong>EU 사용자</strong>: GDPR 준수</li>
+            <li><strong>캘리포니아 사용자</strong>: CCPA 준수</li>
+            <li><strong>한국 사용자</strong>: 개인정보보호법 준수</li>
+        </ul>
+
+        <h2>10. 개인정보 처리방침 변경</h2>
+        <p>본 처리방침은 필요에 따라 업데이트될 수 있습니다.</p>
+        <ul>
+            <li><strong>중요 변경 시</strong>: 30일 전 이메일 공지</li>
+            <li><strong>경미한 변경 시</strong>: 웹사이트 공지</li>
+            <li><strong>발효일</strong>: 공지 후 명시된 날짜</li>
+        </ul>
+
+        <h2>11. 연락처</h2>
+        <p>개인정보 관련 문의:</p>
+        <ul>
+            <li><strong>이메일</strong>: privacy@your-domain.com</li>
+            <li><strong>주소</strong>: [회사 주소]</li>
+            <li><strong>전화</strong>: [전화번호]</li>
+            <li><strong>응답 시간</strong>: 영업일 기준 48시간 이내</li>
+        </ul>
+
+        <h2>12. 관련 링크</h2>
+        <ul>
+            <li><a href="/terms">서비스 약관</a></li>
+            <li><a href="/data-deletion">데이터 삭제 정책</a></li>
+        </ul>
+
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+        <p class="meta" style="text-align: center;">
+            <strong>최종 업데이트</strong>: 2025년 1월 1일<br>
+            본 개인정보 처리방침은 GDPR, CCPA, 한국 개인정보보호법을 준수합니다.
+        </p>
+    </div>
 </body>
 </html>
-
