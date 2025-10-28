@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
+import { resolve } from 'path';
 
-dotenv.config({ path: '../../.env' });
+// Load env from repo root
+dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -58,4 +60,5 @@ export const META_OAUTH_SCOPES = [
   'pages_manage_engagement',
   'pages_manage_metadata',
   'business_management',
+  'email',
 ];

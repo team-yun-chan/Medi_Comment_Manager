@@ -14,6 +14,8 @@ router.use(authMiddleware);
  * Helper: 사용자의 Google Access Token 가져오기
  */
 async function getGoogleAccessToken(userId: string): Promise<string> {
+  console.log('🔑 Getting Google access token for user:', userId);
+  
   const account = await prisma.account.findUnique({
     where: {
       userId_provider: {
@@ -24,35 +26,52 @@ async function getGoogleAccessToken(userId: string): Promise<string> {
   });
 
   if (!account) {
+    console.error('❌ Google account not found for user:', userId);
     throw new Error('Google account not connected');
   }
 
+  console.log('✅ Account found:', {
+    hasAccessToken: !!account.accessToken,
+    hasRefreshToken: !!account.refreshToken,
+    expiresAt: account.expiresAt,
+  });
+
   // 토큰 만료 확인 및 리프레시
   if (account.expiresAt && account.expiresAt < new Date()) {
+    console.log('🔄 Token expired, refreshing...');
+    
     if (!account.refreshToken) {
+      console.error('❌ No refresh token available');
       throw new Error('Refresh token not available');
     }
 
-    const newAccessToken = await GoogleService.refreshAccessToken(
-      account.refreshToken
-    );
+    try {
+      const newAccessToken = await GoogleService.refreshAccessToken(
+        account.refreshToken
+      );
 
-    await prisma.account.update({
-      where: {
-        userId_provider: {
-          userId,
-          provider: 'google',
+      await prisma.account.update({
+        where: {
+          userId_provider: {
+            userId,
+            provider: 'google',
+          },
         },
-      },
-      data: {
-        accessToken: newAccessToken,
-        expiresAt: new Date(Date.now() + 3600 * 1000), // 1시간
-      },
-    });
+        data: {
+          accessToken: newAccessToken,
+          expiresAt: new Date(Date.now() + 3600 * 1000), // 1시간
+        },
+      });
 
-    return newAccessToken;
+      console.log('✅ Token refreshed successfully');
+      return newAccessToken;
+    } catch (error) {
+      console.error('❌ Failed to refresh token:', error);
+      throw new Error('Failed to refresh access token');
+    }
   }
 
+  console.log('✅ Using existing access token');
   return account.accessToken;
 }
 
@@ -61,14 +80,20 @@ async function getGoogleAccessToken(userId: string): Promise<string> {
  */
 router.get('/channels', async (req: AuthRequest, res: Response) => {
   try {
+    console.log('📺 Getting channels for user:', req.user!.id);
+    
     const channels = await prisma.youtubeChannel.findMany({
       where: { userId: req.user!.id },
     });
 
+    console.log('✅ Found channels:', channels.length);
     res.json({ channels });
   } catch (error) {
-    console.error('Get channels error:', error);
-    res.status(500).json({ error: 'Failed to get channels' });
+    console.error('❌ Get channels error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get channels',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -77,8 +102,12 @@ router.get('/channels', async (req: AuthRequest, res: Response) => {
  */
 router.post('/channels/sync', async (req: AuthRequest, res: Response) => {
   try {
+    console.log('🔄 Syncing channels for user:', req.user!.id);
+    
     const accessToken = await getGoogleAccessToken(req.user!.id);
     const channels = await GoogleService.getMyChannels(accessToken);
+
+    console.log('📥 Fetched channels from YouTube:', channels.length);
 
     for (const channel of channels) {
       await prisma.youtubeChannel.upsert({
@@ -98,10 +127,14 @@ router.post('/channels/sync', async (req: AuthRequest, res: Response) => {
       where: { userId: req.user!.id },
     });
 
+    console.log('✅ Channels synced successfully:', syncedChannels.length);
     res.json({ channels: syncedChannels });
   } catch (error) {
-    console.error('Sync channels error:', error);
-    res.status(500).json({ error: 'Failed to sync channels' });
+    console.error('❌ Sync channels error:', error);
+    res.status(500).json({ 
+      error: 'Failed to sync channels',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -112,15 +145,21 @@ router.get('/videos', async (req: AuthRequest, res: Response) => {
   try {
     const { channelId } = req.query;
 
+    console.log('🎬 Getting videos for channel:', channelId);
+
     if (!channelId) {
       return res.status(400).json({ error: 'channelId is required' });
     }
 
     const accessToken = await getGoogleAccessToken(req.user!.id);
+    console.log('📡 Calling YouTube API...');
+    
     const videos = await GoogleService.getChannelVideos(
       accessToken,
       channelId as string
     );
+
+    console.log('✅ Fetched videos:', videos.length);
 
     // DB에 저장
     for (const video of videos) {
@@ -130,7 +169,7 @@ router.get('/videos', async (req: AuthRequest, res: Response) => {
           create: {
             videoId: video.id.videoId,
             title: video.snippet?.title || 'Unknown',
-            channelId: channelId as string,
+            channelId: channelId as string,  // ✅ YouTube 채널 ID 직접 사용
           },
           update: {
             title: video.snippet?.title || 'Unknown',
@@ -139,10 +178,14 @@ router.get('/videos', async (req: AuthRequest, res: Response) => {
       }
     }
 
+    console.log('✅ Videos saved to DB');
     res.json({ videos });
   } catch (error) {
-    console.error('Get videos error:', error);
-    res.status(500).json({ error: 'Failed to get videos' });
+    console.error('❌ Get videos error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get videos',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 });
 
@@ -153,6 +196,8 @@ router.get('/comments', async (req: AuthRequest, res: Response) => {
   try {
     const { videoId } = req.query;
 
+    console.log('💬 Getting comments for video:', videoId);
+
     if (!videoId) {
       return res.status(400).json({ error: 'videoId is required' });
     }
@@ -162,10 +207,14 @@ router.get('/comments', async (req: AuthRequest, res: Response) => {
       orderBy: { publishedAt: 'desc' },
     });
 
+    console.log('✅ Found comments:', comments.length);
     res.json({ comments });
   } catch (error) {
-    console.error('Get comments error:', error);
-    res.status(500).json({ error: 'Failed to get comments' });
+    console.error('❌ Get comments error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get comments',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -175,6 +224,8 @@ router.get('/comments', async (req: AuthRequest, res: Response) => {
 router.post('/comments/sync', async (req: AuthRequest, res: Response) => {
   try {
     const { videoId } = req.body;
+
+    console.log('🔄 Syncing comments for video:', videoId);
 
     if (!videoId) {
       return res.status(400).json({ error: 'videoId is required' });
@@ -187,13 +238,17 @@ router.post('/comments/sync', async (req: AuthRequest, res: Response) => {
       videoId,
     });
 
+    console.log('✅ Comment sync job queued');
     res.json({
       message: 'Comment sync job queued',
       videoId,
     });
   } catch (error) {
-    console.error('Sync comments error:', error);
-    res.status(500).json({ error: 'Failed to queue sync job' });
+    console.error('❌ Sync comments error:', error);
+    res.status(500).json({ 
+      error: 'Failed to queue sync job',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -203,6 +258,8 @@ router.post('/comments/sync', async (req: AuthRequest, res: Response) => {
 router.delete('/comments/:commentId', async (req: AuthRequest, res: Response) => {
   try {
     const { commentId } = req.params;
+
+    console.log('🗑️ Deleting comment:', commentId);
 
     const accessToken = await getGoogleAccessToken(req.user!.id);
     await GoogleService.deleteComment(accessToken, commentId);
@@ -223,10 +280,14 @@ router.delete('/comments/:commentId', async (req: AuthRequest, res: Response) =>
       },
     });
 
+    console.log('✅ Comment deleted successfully');
     res.json({ message: 'Comment deleted successfully' });
   } catch (error) {
-    console.error('Delete comment error:', error);
-    res.status(500).json({ error: 'Failed to delete comment' });
+    console.error('❌ Delete comment error:', error);
+    res.status(500).json({ 
+      error: 'Failed to delete comment',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -237,6 +298,8 @@ router.post('/comments/:commentId/reply', async (req: AuthRequest, res: Response
   try {
     const { commentId } = req.params;
     const { text } = req.body;
+
+    console.log('💬 Replying to comment:', commentId);
 
     if (!text) {
       return res.status(400).json({ error: 'text is required' });
@@ -261,10 +324,14 @@ router.post('/comments/:commentId/reply', async (req: AuthRequest, res: Response
       },
     });
 
+    console.log('✅ Reply posted successfully');
     res.json({ message: 'Reply posted successfully', reply });
   } catch (error) {
-    console.error('Reply error:', error);
-    res.status(500).json({ error: 'Failed to post reply' });
+    console.error('❌ Reply error:', error);
+    res.status(500).json({ 
+      error: 'Failed to post reply',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -275,6 +342,8 @@ router.post('/comments/:commentId/moderate', async (req: AuthRequest, res: Respo
   try {
     const { commentId } = req.params;
     const { status } = req.body; // 'heldForReview' | 'published' | 'rejected'
+
+    console.log('🛡️ Moderating comment:', commentId, 'status:', status);
 
     if (!['heldForReview', 'published', 'rejected'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
@@ -295,10 +364,14 @@ router.post('/comments/:commentId/moderate', async (req: AuthRequest, res: Respo
       },
     });
 
+    console.log('✅ Comment moderation status updated');
     res.json({ message: 'Comment moderation status updated' });
   } catch (error) {
-    console.error('Moderate comment error:', error);
-    res.status(500).json({ error: 'Failed to moderate comment' });
+    console.error('❌ Moderate comment error:', error);
+    res.status(500).json({ 
+      error: 'Failed to moderate comment',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

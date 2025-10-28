@@ -11,18 +11,19 @@ const oauth2Client = new google.auth.OAuth2(
 
 export class GoogleService {
   /**
-   * OAuth 로그인 URL 생성
+   * OAuth 로그??URL ?�성
    */
-  static getAuthUrl(): string {
+  static getAuthUrl(state?: string): string {
     return oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: GOOGLE_OAUTH_SCOPES,
-      prompt: 'consent', // 매번 refresh_token 받기 위해
+      prompt: 'consent',
+      state,
     });
   }
 
   /**
-   * Authorization Code로 토큰 교환
+   * Authorization Code�??�큰 교환
    */
   static async exchangeCodeForTokens(code: string): Promise<GoogleTokens> {
     const { tokens } = await oauth2Client.getToken(code);
@@ -43,7 +44,7 @@ export class GoogleService {
   }
 
   /**
-   * Refresh Token으로 새 Access Token 발급
+   * Refresh Token?�로 ??Access Token 발급
    */
   static async refreshAccessToken(refreshToken: string): Promise<string> {
     oauth2Client.setCredentials({ refresh_token: refreshToken });
@@ -57,8 +58,7 @@ export class GoogleService {
   }
 
   /**
-   * 사용자 정보 가져오기
-   */
+   * ?�용???�보 가?�오�?   */
   static async getUserInfo(accessToken: string) {
     const response = await axios.get(
       'https://www.googleapis.com/oauth2/v2/userinfo',
@@ -70,7 +70,7 @@ export class GoogleService {
   }
 
   /**
-   * 내 YouTube 채널 정보
+   * ??YouTube 채널 ?�보
    */
   static async getMyChannels(accessToken: string) {
     oauth2Client.setCredentials({ access_token: accessToken });
@@ -85,7 +85,7 @@ export class GoogleService {
   }
 
   /**
-   * 특정 비디오의 댓글 목록 (최대 100개)
+   * ?�정 비디?�의 ?��? 목록 (최�? 100�?
    */
   static async getVideoComments(
     accessToken: string,
@@ -100,7 +100,7 @@ export class GoogleService {
       videoId,
       maxResults: 100,
       pageToken: pageToken || undefined,
-      order: 'time', // 최신순
+      order: 'time',
     });
 
     const comments: YoutubeComment[] = [];
@@ -119,7 +119,7 @@ export class GoogleService {
           updatedAt: topComment.snippet?.updatedAt || new Date().toISOString(),
         });
 
-        // 답글도 추가
+        // ?��???추�?
         thread.replies?.comments?.forEach((reply) => {
           comments.push({
             id: reply.id!,
@@ -143,7 +143,7 @@ export class GoogleService {
   }
 
   /**
-   * 댓글 삭제 (youtube.force-ssl 스코프 필요)
+   * ?��? ??�� (youtube.force-ssl ?�코???�요)
    */
   static async deleteComment(accessToken: string, commentId: string) {
     oauth2Client.setCredentials({ access_token: accessToken });
@@ -154,7 +154,7 @@ export class GoogleService {
   }
 
   /**
-   * 댓글에 답글 달기
+   * ?��????��? ?�기
    */
   static async replyToComment(
     accessToken: string,
@@ -178,7 +178,7 @@ export class GoogleService {
   }
 
   /**
-   * 댓글 숨김/보류 처리
+   * ?��? ?��?/보류 처리
    */
   static async setModerationStatus(
     accessToken: string,
@@ -197,7 +197,7 @@ export class GoogleService {
   }
 
   /**
-   * 채널의 최근 비디오 목록
+   * 채널??최근 비디??목록
    */
   static async getChannelVideos(
     accessToken: string,

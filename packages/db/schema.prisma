@@ -58,7 +58,7 @@ model YoutubeVideo {
   channelId String
   createdAt DateTime @default(now())
   
-  channel  YoutubeChannel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel  YoutubeChannel   @relation(fields: [channelId], references: [channelId], onDelete: Cascade)
   comments YoutubeComment[]
 }
 
@@ -75,7 +75,7 @@ model YoutubeComment {
   updatedAt       DateTime @updatedAt
   createdAt       DateTime @default(now())
   
-  video YoutubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  video YoutubeVideo @relation(fields: [videoId], references: [videoId], onDelete: Cascade)
   
   @@index([videoId])
   @@index([authorChannelId])

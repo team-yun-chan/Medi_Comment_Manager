@@ -166,6 +166,9 @@ importers:
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
+      googleapis:
+        specifier: ^129.0.0
+        version: 129.0.0
       ioredis:
         specifier: ^5.3.2
         version: 5.8.2
@@ -187,7 +190,7 @@ importers:
         version: 5.22.0(prisma@5.22.0)
     devDependencies:
       dotenv-cli:
-        specifier: ^7.4.4
+        specifier: ^7.4.2
         version: 7.4.4
       prisma:
         specifier: ^5.22.0

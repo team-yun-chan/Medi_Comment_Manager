@@ -3,6 +3,7 @@ import { GoogleService } from '../services/google';
 import { MetaService } from '../services/meta';
 import { prisma } from '../db';
 import { generateToken } from '../utils/jwt';
+import { verifyToken } from '../utils/jwt';
 import { authMiddleware } from '../middleware/auth';
 import { AuthRequest } from '../types';
 import { config } from '../config';
@@ -10,78 +11,65 @@ import { config } from '../config';
 const router = Router();
 
 // ===== Google OAuth =====
-
-/**
- * Google 로그인 시작
- */
-router.get('/google/login', (req: Request, res: Response) => {
-  const authUrl = GoogleService.getAuthUrl();
-  res.json({ url: authUrl });
+router.get('/google', (req: Request, res: Response) => {
+  const linkToken = (req.query.linkToken as string) || '';
+  const state = linkToken ? `link:${linkToken}` : Math.random().toString(36).substring(7);
+  const authUrl = GoogleService.getAuthUrl(state);
+  res.redirect(authUrl);
 });
 
-/**
- * Google OAuth 콜백
- */
 router.get('/google/callback', async (req: Request, res: Response) => {
   try {
     const code = req.query.code as string;
+    if (!code) return res.status(400).json({ error: 'Authorization code missing' });
 
-    if (!code) {
-      return res.status(400).json({ error: 'Authorization code missing' });
+    // 1. Exchange code for tokens
+    // If linking, resolve existing user from link token in state
+    const stateParam = req.query.state as string | undefined;
+    let linkedUser: any = null;
+    if (stateParam && stateParam.startsWith('link:')) {
+      const linkToken = stateParam.substring(5);
+      try {
+        const payload = verifyToken(linkToken) as any;
+        linkedUser = await prisma.user.findUnique({ where: { id: payload.id } });
+      } catch {}
     }
-
-    // 1. 토큰 교환
     const tokens = await GoogleService.exchangeCodeForTokens(code);
 
-    // 2. 사용자 정보 가져오기
+    // 2. Get user info
     const userInfo = await GoogleService.getUserInfo(tokens.access_token);
+    const email = userInfo.email || `google_${userInfo.id || 'unknown'}@placeholder.local`;
 
-    // 3. 사용자 생성 또는 업데이트
-    let user = await prisma.user.findUnique({
-      where: { email: userInfo.email },
-    });
-
+    // 3. Upsert user
+    let user = linkedUser ?? await prisma.user.findUnique({ where: { email } });
     if (!user) {
       user = await prisma.user.create({
-        data: {
-          email: userInfo.email,
-          name: userInfo.name,
-        },
+        data: { email, name: userInfo.name },
       });
     }
 
-    // 4. Account 저장 (토큰)
+    // 4. Upsert account
     await prisma.account.upsert({
-      where: {
-        userId_provider: {
-          userId: user.id,
-          provider: 'google',
-        },
-      },
+      where: { userId_provider: { userId: user.id, provider: 'google' } },
       create: {
         userId: user.id,
         provider: 'google',
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
-        expiresAt: tokens.expires_in
-          ? new Date(Date.now() + tokens.expires_in * 1000)
-          : null,
+        expiresAt: tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : null,
         scope: tokens.scope,
       },
       update: {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token || undefined,
-        expiresAt: tokens.expires_in
-          ? new Date(Date.now() + tokens.expires_in * 1000)
-          : null,
+        expiresAt: tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : null,
         scope: tokens.scope,
       },
     });
 
-    // 5. 채널 정보 동기화
+    // 5. Sync channels (best effort)
     try {
       const channels = await GoogleService.getMyChannels(tokens.access_token);
-      
       for (const channel of channels) {
         await prisma.youtubeChannel.upsert({
           where: { channelId: channel.id! },
@@ -99,15 +87,13 @@ router.get('/google/callback', async (req: Request, res: Response) => {
       console.error('Failed to sync channels:', error);
     }
 
-    // 6. JWT 발급
+    // 6. Issue JWT and redirect
     const jwt = generateToken({
       id: user.id,
       email: user.email,
       name: user.name || undefined,
       role: user.role,
     });
-
-    // 7. 프론트로 리다이렉트 (토큰 전달)
     const redirectUrl = `${config.WEB_BASE_URL}/auth/callback?token=${jwt}&provider=google`;
     res.redirect(redirectUrl);
   } catch (error) {
@@ -117,83 +103,66 @@ router.get('/google/callback', async (req: Request, res: Response) => {
 });
 
 // ===== Meta OAuth =====
-
-/**
- * Meta 로그인 시작
- */
-router.get('/meta/login', (req: Request, res: Response) => {
-  const state = Math.random().toString(36).substring(7); // CSRF 방지용
+router.get('/meta', (req: Request, res: Response) => {
+  const linkToken = (req.query.linkToken as string) || '';
+  const state = linkToken ? `link:${linkToken}` : Math.random().toString(36).substring(7);
   const authUrl = MetaService.getAuthUrl(state);
-  res.json({ url: authUrl });
+  res.redirect(authUrl);
 });
 
-/**
- * Meta OAuth 콜백
- */
 router.get('/meta/callback', async (req: Request, res: Response) => {
   try {
     const code = req.query.code as string;
+    if (!code) return res.status(400).json({ error: 'Authorization code missing' });
 
-    if (!code) {
-      return res.status(400).json({ error: 'Authorization code missing' });
-    }
-
-    // 1. Short-Lived Token 발급
+    // 1. Short-lived token
     const shortToken = await MetaService.exchangeCodeForToken(code);
+    // 2. Long-lived token
+    const longToken = await MetaService.exchangeForLongLivedToken(shortToken.access_token);
 
-    // 2. Long-Lived Token으로 교환 (60일)
-    const longToken = await MetaService.exchangeForLongLivedToken(
-      shortToken.access_token
-    );
-
-    // 3. 사용자 정보 가져오기
+    // 3. Get user info
     const userInfo = await MetaService.getUserInfo(longToken.access_token);
+    const email = userInfo.email || `meta_${userInfo.id}@placeholder.local`;
 
-    // 4. 사용자 생성 또는 업데이트
-    let user = await prisma.user.findUnique({
-      where: { email: userInfo.email },
-    });
-
+    // 4. Resolve user (link to existing if state carries link token)
+    let user = null as any;
+    const state = req.query.state as string | undefined;
+    if (state && state.startsWith('link:')) {
+      const linkToken = state.substring(5);
+      try {
+        const linked = verifyToken(linkToken) as any;
+        user = await prisma.user.findUnique({ where: { id: linked.id } });
+      } catch (e) {
+        // fall back to email flow
+      }
+    }
     if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: userInfo.email || `meta_${userInfo.id}@placeholder.local`,
-          name: userInfo.name,
-        },
-      });
+      user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        user = await prisma.user.create({ data: { email, name: userInfo.name } });
+      }
     }
 
-    // 5. Account 저장
+    // 5. Upsert account
     await prisma.account.upsert({
-      where: {
-        userId_provider: {
-          userId: user.id,
-          provider: 'meta',
-        },
-      },
+      where: { userId_provider: { userId: user.id, provider: 'meta' } },
       create: {
         userId: user.id,
         provider: 'meta',
         accessToken: longToken.access_token,
-        expiresAt: longToken.expires_in
-          ? new Date(Date.now() + longToken.expires_in * 1000)
-          : null,
+        expiresAt: longToken.expires_in ? new Date(Date.now() + longToken.expires_in * 1000) : null,
       },
       update: {
         accessToken: longToken.access_token,
-        expiresAt: longToken.expires_in
-          ? new Date(Date.now() + longToken.expires_in * 1000)
-          : null,
+        expiresAt: longToken.expires_in ? new Date(Date.now() + longToken.expires_in * 1000) : null,
       },
     });
 
-    // 6. 페이지 정보 동기화
+    // 6. Sync pages (best effort)
     try {
       const pages = await MetaService.getUserPages(longToken.access_token);
-
       for (const page of pages) {
         const igAccount = page.instagram_business_account;
-
         await prisma.instagramPage.upsert({
           where: { fbPageId: page.id },
           create: {
@@ -201,7 +170,7 @@ router.get('/meta/callback', async (req: Request, res: Response) => {
             name: page.name,
             igId: igAccount?.id,
             userId: user.id,
-            accessToken: page.access_token, // Page Access Token
+            accessToken: page.access_token,
           },
           update: {
             name: page.name,
@@ -210,13 +179,9 @@ router.get('/meta/callback', async (req: Request, res: Response) => {
           },
         });
 
-        // IG 계정의 username 가져오기
         if (igAccount?.id) {
           try {
-            const igInfo = await MetaService.getInstagramAccount(
-              page.access_token,
-              igAccount.id
-            );
+            const igInfo = await MetaService.getInstagramAccount(page.access_token, igAccount.id);
             await prisma.instagramPage.update({
               where: { fbPageId: page.id },
               data: { username: igInfo.username },
@@ -230,15 +195,13 @@ router.get('/meta/callback', async (req: Request, res: Response) => {
       console.error('Failed to sync pages:', error);
     }
 
-    // 7. JWT 발급
+    // 7. Issue JWT and redirect
     const jwt = generateToken({
       id: user.id,
       email: user.email,
       name: user.name || undefined,
       role: user.role,
     });
-
-    // 8. 프론트로 리다이렉트
     const redirectUrl = `${config.WEB_BASE_URL}/auth/callback?token=${jwt}&provider=meta`;
     res.redirect(redirectUrl);
   } catch (error) {
@@ -247,44 +210,19 @@ router.get('/meta/callback', async (req: Request, res: Response) => {
   }
 });
 
-// ===== 공통 인증 =====
-
-/**
- * 현재 로그인한 사용자 정보
- */
+// ===== Common Auth =====
 router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
       include: {
-        accounts: {
-          select: {
-            provider: true,
-            expiresAt: true,
-          },
-        },
-        youtubeChannels: {
-          select: {
-            id: true,
-            channelId: true,
-            title: true,
-          },
-        },
-        instagramPages: {
-          select: {
-            id: true,
-            fbPageId: true,
-            name: true,
-            username: true,
-            igId: true,
-          },
-        },
+        accounts: { select: { provider: true, expiresAt: true } },
+        youtubeChannels: { select: { id: true, channelId: true, title: true } },
+        instagramPages: { select: { id: true, fbPageId: true, name: true, username: true, igId: true } },
       },
     });
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
     res.json({
       id: user.id,
@@ -301,9 +239,6 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-/**
- * 로그아웃 (클라이언트에서 토큰 삭제만 하면 됨)
- */
 router.post('/logout', authMiddleware, (req: Request, res: Response) => {
   res.json({ message: 'Logged out successfully' });
 });

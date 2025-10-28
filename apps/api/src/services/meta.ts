@@ -222,7 +222,8 @@ export class MetaService {
   static async subscribePageWebhook(
     pageAccessToken: string,
     pageId: string,
-    fields: string[] = ['comments', 'mentions']
+    // Use 'feed' for comments on page posts
+    fields: string[] = ['feed']
   ) {
     const url = `${GRAPH_BASE}/${GRAPH_VERSION}/${pageId}/subscribed_apps`;
     const response = await axios.post(

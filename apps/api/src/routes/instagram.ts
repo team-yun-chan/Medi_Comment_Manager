@@ -168,14 +168,29 @@ router.get('/media', async (req: AuthRequest, res: Response) => {
  */
 router.get('/comments', async (req: AuthRequest, res: Response) => {
   try {
-    const { mediaId } = req.query;
+    const mediaIdParam = req.query.mediaId as string;
 
-    if (!mediaId) {
+    if (!mediaIdParam) {
       return res.status(400).json({ error: 'mediaId is required' });
     }
 
+    // mediaIdParam may be either local InstagramMedia.id or Graph API mediaId
+    const media = await prisma.instagramMedia.findFirst({
+      where: {
+        OR: [
+          { id: mediaIdParam },
+          { mediaId: mediaIdParam },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!media) {
+      return res.json({ comments: [] });
+    }
+
     const comments = await prisma.instagramComment.findMany({
-      where: { mediaId: mediaId as string },
+      where: { mediaId: media.id },
       orderBy: { timestamp: 'desc' },
     });
 
@@ -191,27 +206,86 @@ router.get('/comments', async (req: AuthRequest, res: Response) => {
  */
 router.post('/comments/sync', async (req: AuthRequest, res: Response) => {
   try {
-    const { mediaId, pageId } = req.body;
+    const { mediaId, pageId } = req.body as { mediaId?: string; pageId?: string };
 
     if (!mediaId || !pageId) {
       return res.status(400).json({ error: 'mediaId and pageId are required' });
     }
 
-    // 백그라운드 작업 큐에 추가
-    await queueCommentSync({
-      platform: 'instagram',
-      userId: req.user!.id,
-      mediaId,
-      pageId,
+    // Resolve page + access token
+    const page = await prisma.instagramPage.findFirst({
+      where: { id: pageId, userId: req.user!.id },
+    });
+    if (!page) {
+      return res.status(404).json({ error: 'Page not found' });
+    }
+
+    // Resolve local media record
+    const media = await prisma.instagramMedia.findFirst({
+      where: { OR: [{ id: mediaId }, { mediaId }] },
+    });
+    if (!media) {
+      return res.status(404).json({ error: 'Media not found' });
+    }
+
+    // Fetch latest comments directly from Meta Graph API
+    const fetched = await MetaService.getMediaComments(page.accessToken, media.mediaId);
+
+    const saved: any[] = [];
+    for (const c of fetched) {
+      const record = await prisma.instagramComment.upsert({
+        where: { commentId: c.id },
+        create: {
+          commentId: c.id,
+          mediaId: media.id,
+          parentId: undefined,
+          text: c.text || '',
+          username: c.username || 'unknown',
+          hidden: !!c.hidden,
+          likeCount: c.like_count || 0,
+          timestamp: new Date(c.timestamp || Date.now()),
+        },
+        update: {
+          text: c.text || '',
+          hidden: !!c.hidden,
+          likeCount: c.like_count || 0,
+        },
+      });
+      saved.push(record);
+
+      // Save replies if present
+      if (c.replies?.data?.length) {
+        for (const r of c.replies.data) {
+          await prisma.instagramComment.upsert({
+            where: { commentId: r.id },
+            create: {
+              commentId: r.id,
+              mediaId: media.id,
+              parentId: c.id,
+              text: r.text || '',
+              username: r.username || 'unknown',
+              hidden: false,
+              likeCount: 0,
+              timestamp: new Date(r.timestamp || Date.now()),
+            },
+            update: {
+              text: r.text || '',
+            },
+          });
+        }
+      }
+    }
+
+    // Return current comments from DB
+    const comments = await prisma.instagramComment.findMany({
+      where: { mediaId: media.id },
+      orderBy: { timestamp: 'desc' },
     });
 
-    res.json({
-      message: 'Comment sync job queued',
-      mediaId,
-    });
+    res.json({ message: 'Comments synced', count: comments.length, comments });
   } catch (error) {
     console.error('Sync comments error:', error);
-    res.status(500).json({ error: 'Failed to queue sync job' });
+    res.status(500).json({ error: 'Failed to sync comments' });
   }
 });
 
@@ -419,18 +493,14 @@ router.post('/pages/:pageId/subscribe', async (req: AuthRequest, res: Response) 
       return res.status(404).json({ error: 'Page not found' });
     }
 
-    const result = await MetaService.subscribePageWebhook(
-      page.accessToken,
-      page.fbPageId
-    );
+    const result = await MetaService.subscribePageWebhook(page.accessToken, page.fbPageId);
 
-    res.json({
-      message: 'Webhook subscribed successfully',
-      result,
-    });
+    res.json({ message: 'Webhook subscribed successfully', result });
   } catch (error) {
-    console.error('Subscribe webhook error:', error);
-    res.status(500).json({ error: 'Failed to subscribe webhook' });
+    const anyErr: any = error as any;
+    const details = anyErr?.response?.data || anyErr?.message || 'unknown_error';
+    console.error('Subscribe webhook error:', details);
+    res.status(500).json({ error: 'Failed to subscribe webhook', details });
   }
 });
 

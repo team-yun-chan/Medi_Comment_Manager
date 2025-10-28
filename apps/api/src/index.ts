@@ -15,6 +15,15 @@ const app = express();
 app.use(cors({
   origin: config.WEB_BASE_URL,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+// Ensure preflight handled for all routes
+app.options('*', cors({
+  origin: config.WEB_BASE_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Webhook은 raw body 필요 (Meta 검증용)

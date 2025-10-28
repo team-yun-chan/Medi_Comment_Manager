@@ -14,6 +14,7 @@ YouTube + Instagram 통합 댓글 관리 플랫폼
 ## 📦 기술 스택
 
 ### Backend
+
 - **Node.js** + **TypeScript**
 - **Express** (API 서버)
 - **Prisma** (ORM)
@@ -22,12 +23,14 @@ YouTube + Instagram 통합 댓글 관리 플랫폼
 - **BullMQ** (백그라운드 작업)
 
 ### Frontend
+
 - **Next.js 15** (App Router)
 - **React 19**
 - **Tailwind CSS**
 - **shadcn/ui**
 
 ### APIs
+
 - **Google YouTube Data API v3**
 - **Meta Graph API v21.0**
 
@@ -96,6 +99,7 @@ pnpm --filter @app/worker dev    # 워커
 ## 📡 API 엔드포인트
 
 ### 인증
+
 ```
 GET  /auth/google/login       - Google OAuth 시작
 GET  /auth/google/callback    - Google OAuth 콜백
@@ -105,6 +109,7 @@ GET  /auth/me                 - 현재 사용자 정보
 ```
 
 ### YouTube
+
 ```
 GET    /youtube/channels           - 채널 목록
 POST   /youtube/channels/sync      - 채널 동기화
@@ -116,6 +121,7 @@ POST   /youtube/comments/:id/reply - 댓글 답글
 ```
 
 ### Instagram
+
 ```
 GET    /instagram/pages                - 페이지 목록
 POST   /instagram/pages/sync           - 페이지 동기화
@@ -130,6 +136,7 @@ POST   /instagram/pages/:id/subscribe  - Webhook 구독
 ```
 
 ### Moderation
+
 ```
 GET    /moderation/rules            - 규칙 목록
 POST   /moderation/rules            - 규칙 생성
@@ -141,6 +148,7 @@ GET    /moderation/stats            - 통계
 ```
 
 ### Webhooks
+
 ```
 GET  /webhooks/meta       - Webhook 검증
 POST /webhooks/meta       - Webhook 이벤트 수신
@@ -186,6 +194,7 @@ WEBHOOK_PUBLIC_URL=https://your-ngrok-url.ngrok.io
 ```
 
 Meta Webhook 설정:
+
 - URL: `https://your-ngrok-url.ngrok.io/webhooks/meta`
 - Verify Token: `.env`의 `META_APP_VERIFY_TOKEN`
 - 구독 필드: `comments`, `mentions`
@@ -193,6 +202,7 @@ Meta Webhook 설정:
 ## 📊 데이터베이스 스키마
 
 주요 테이블:
+
 - `User` - 사용자
 - `Account` - OAuth 계정 (Google/Meta)
 - `YoutubeChannel` / `YoutubeVideo` / `YoutubeComment`
@@ -203,16 +213,19 @@ Meta Webhook 설정:
 ## 🐛 트러블슈팅
 
 ### Prisma 에러
+
 ```bash
 pnpm db:push
 pnpm --filter @repo/db prisma generate
 ```
 
 ### OAuth 리디렉션 에러
+
 - Google/Meta 콘솔에서 리디렉션 URI 확인
 - `.env`의 `GOOGLE_REDIRECT_URI` / `META_REDIRECT_URI` 확인
 
 ### Webhook 수신 안됨
+
 - ngrok URL 확인
 - Meta 대시보드에서 Webhook 구독 상태 확인
 - `/webhooks/meta/logs` 엔드포인트로 로그 확인
@@ -220,14 +233,17 @@ pnpm --filter @repo/db prisma generate
 ## 🔧 Worker (BullMQ)
 
 ### 큐 목록
+
 - **comment-sync**: 댓글 동기화 (YouTube/Instagram)
 - **moderation**: 자동 모더레이션 (규칙 기반 or AI)
 - **webhook-event**: Webhook 이벤트 처리
 
 ### 모더레이션 엔진
+
 현재: **Rule-Based Engine** (키워드, 정규식, 스팸)
 
 교체 가능: **AI Agent Engine** (OpenAI GPT)
+
 ```bash
 # .env
 OPENAI_API_KEY=sk-your-key
@@ -237,10 +253,12 @@ MODERATION_ENGINE=ai-agent
 ## 🎨 프론트엔드 페이지
 
 ### 인증
+
 - `/login` - 통합 로그인 페이지
 - `/auth/callback` - OAuth 콜백 처리
 
 ### 대시보드
+
 - `/dashboard` - 홈 (통계 + 빠른 시작)
 - `/dashboard/youtube` - YouTube 댓글 관리
 - `/dashboard/instagram` - Instagram 댓글 관리
@@ -250,12 +268,14 @@ MODERATION_ENGINE=ai-agent
 ## 🚀 실행 방법
 
 ### 1. 전체 개발 서버 실행
+
 ```bash
 # 루트에서
 pnpm dev
 ```
 
 ### 2. 개별 실행
+
 ```bash
 # API 서버
 cd apps/api
@@ -267,15 +287,16 @@ pnpm dev
 ```
 
 ### 3. 접속
+
 - Web: http://localhost:3000
 - API: http://localhost:4000
 
 ## 📝 다음 단계
 
-- [x] 백엔드 API 구현
-- [x] 프론트엔드 구현 (Next.js + shadcn/ui)
-- [x] BullMQ 워커 구현 (교체 가능한 모더레이션 엔진)
-- [x] 검수 문서 작성 (Google/Meta)
+- [X] 백엔드 API 구현
+- [X] 프론트엔드 구현 (Next.js + shadcn/ui)
+- [X] BullMQ 워커 구현 (교체 가능한 모더레이션 엔진)
+- [X] 검수 문서 작성 (Google/Meta)
 - [ ] 배포 (Vercel + Railway)
 
 ---
@@ -283,20 +304,24 @@ pnpm dev
 ## 📄 검수 문서
 
 ### Google OAuth 검수
+
 - [검수 가이드](docs/google/OAUTH_VERIFICATION.md)
 - [스코프 사용 근거](docs/google/SCOPE_JUSTIFICATION.md)
 - [시연 동영상 스크립트](docs/google/DEMO_SCRIPT.md)
 
 ### Meta App 검수
+
 - [앱 검수 가이드](docs/meta/APP_REVIEW.md)
 - [권한 사용 근거](docs/meta/PERMISSIONS.md)
 - [테스트 계정 가이드](docs/meta/TEST_USERS.md)
 
 ### 공통 정책
+
 - [개인정보 처리방침](docs/PRIVACY_POLICY.md)
 - [데이터 삭제 정책](docs/DATA_DELETION.md)
 
 ### 배포
+
 - [배포 가이드](docs/DEPLOYMENT.md)
 
 ---
@@ -304,6 +329,7 @@ pnpm dev
 ## ✅ 검수 제출 체크리스트
 
 ### Google OAuth 검수
+
 - [ ] OAuth 동의 화면 정보 작성
 - [ ] 스코프 설정 (youtube.force-ssl, youtube.readonly)
 - [ ] 리디렉션 URI 등록
@@ -314,6 +340,7 @@ pnpm dev
 - [ ] 검수 신청서 제출
 
 ### Meta App 검수
+
 - [ ] 앱 기본 정보 작성 (이름, 아이콘, 설명)
 - [ ] 개인정보 처리방침 URL 등록
 - [ ] 서비스 약관 URL 등록

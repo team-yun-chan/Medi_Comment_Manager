@@ -1,248 +1,180 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { RefreshCw, Trash2, Reply, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { youtubeApi } from '@/lib/api'
-import { formatRelativeTime } from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import { youtubeApi } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
-export default function YoutubePage() {
-  const [channels, setChannels] = useState<any[]>([])
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(null)
-  const [videos, setVideos] = useState<any[]>([])
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
-  const [comments, setComments] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
+export default function YouTubeDashboard() {
+  const router = useRouter();
+  const [channels, setChannels] = useState([]);
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadChannels()
-  }, [])
+    // 토큰 확인
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    loadChannels();
+  }, []);
 
   const loadChannels = async () => {
     try {
-      const { data } = await youtubeApi.getChannels()
-      setChannels(data.channels)
+      setLoading(true);
+      const { data } = await youtubeApi.getChannels();
+      setChannels(data.channels);
+      
       if (data.channels.length > 0) {
-        setSelectedChannel(data.channels[0].channelId)
+        setSelectedChannel(data.channels[0].channelId);
+      } else {
+        // 채널이 없으면 동기화
+        await syncChannels();
       }
-    } catch (error) {
-      console.error('Failed to load channels:', error)
+    } catch (error: any) {
+      console.error('❌ Failed to load channels:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        router.push('/login');
+      }
+      setError('채널을 불러올 수 없습니다.');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  const syncChannels = async () => {
+    try {
+      setLoading(true);
+      const { data } = await youtubeApi.syncChannels();
+      setChannels(data.channels);
+      
+      if (data.channels.length > 0) {
+        setSelectedChannel(data.channels[0].channelId);
+      }
+    } catch (error: any) {
+      console.error('❌ Failed to sync channels:', error);
+      setError('채널 동기화에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadVideos = async (channelId: string) => {
     try {
-      setLoading(true)
-      const { data } = await youtubeApi.getVideos(channelId)
-      setVideos(data.videos)
-    } catch (error) {
-      console.error('Failed to load videos:', error)
+      setLoading(true);
+      setError(null);
+      const { data } = await youtubeApi.getVideos(channelId);
+      setVideos(data.videos || []);
+    } catch (error: any) {
+      console.error('❌ Failed to load videos:', error);
+      setError(error.response?.data?.message || '비디오를 불러올 수 없습니다.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-  const loadComments = async (videoId: string) => {
-    try {
-      setLoading(true)
-      const { data } = await youtubeApi.getComments(videoId)
-      setComments(data.comments)
-    } catch (error) {
-      console.error('Failed to load comments:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const syncComments = async () => {
-    if (!selectedVideo) return
-    try {
-      setLoading(true)
-      const { data } = await youtubeApi.syncComments(selectedVideo)
-      setComments(data.comments)
-    } catch (error) {
-      console.error('Failed to sync comments:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const deleteComment = async (commentId: string) => {
-    if (!confirm('정말 이 댓글을 삭제하시겠습니까?')) return
-    
-    try {
-      await youtubeApi.deleteComment(commentId)
-      setComments(comments.filter((c) => c.commentId !== commentId))
-    } catch (error) {
-      console.error('Failed to delete comment:', error)
-      alert('댓글 삭제에 실패했습니다')
-    }
-  }
+  };
 
   useEffect(() => {
     if (selectedChannel) {
-      loadVideos(selectedChannel)
+      loadVideos(selectedChannel);
     }
-  }, [selectedChannel])
-
-  useEffect(() => {
-    if (selectedVideo) {
-      loadComments(selectedVideo)
-    }
-  }, [selectedVideo])
-
-  if (channels.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>YouTube 채널을 찾을 수 없습니다</CardTitle>
-          <CardDescription>
-            YouTube 계정을 먼저 연결해주세요
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    )
-  }
+  }, [selectedChannel]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">YouTube 댓글</h1>
-          <p className="text-muted-foreground">
-            {channels.length}개 채널의 댓글을 관리하세요
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">YouTube 대시보드</h1>
+          <button
+            onClick={syncChannels}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition"
+          >
+            {loading ? '동기화 중...' : '채널 동기화'}
+          </button>
         </div>
-        <Button onClick={() => youtubeApi.syncChannels()}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          채널 동기화
-        </Button>
-      </div>
 
-      {/* 채널 선택 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>채널 선택</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            {channels.map((channel) => (
-              <Button
-                key={channel.channelId}
-                variant={selectedChannel === channel.channelId ? 'default' : 'outline'}
-                onClick={() => setSelectedChannel(channel.channelId)}
-              >
-                {channel.title}
-              </Button>
-            ))}
+        {/* Error */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800">{error}</p>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* 비디오 선택 */}
-      {selectedChannel && (
-        <Card>
-          <CardHeader>
-            <CardTitle>최근 비디오</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading && !videos.length ? (
-              <p className="text-muted-foreground">로딩 중...</p>
-            ) : videos.length === 0 ? (
-              <p className="text-muted-foreground">비디오가 없습니다</p>
-            ) : (
-              <div className="space-y-2">
-                {videos.slice(0, 10).map((video) => (
-                  <button
-                    key={video.id?.videoId}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                      selectedVideo === video.id?.videoId
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-accent'
-                    }`}
-                    onClick={() => setSelectedVideo(video.id?.videoId)}
-                  >
-                    <p className="font-medium line-clamp-1">
-                      {video.snippet?.title}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(video.snippet?.publishedAt).toLocaleDateString()}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+        {/* Channel Select */}
+        <div className="mb-8 bg-white rounded-lg shadow p-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            채널 선택
+          </label>
+          <select
+            value={selectedChannel || ''}
+            onChange={(e) => setSelectedChannel(e.target.value)}
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">채널을 선택하세요</option>
+            {channels.map((channel: any) => (
+              <option key={channel.channelId} value={channel.channelId}>
+                {channel.title}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* 댓글 목록 */}
-      {selectedVideo && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>댓글 목록</CardTitle>
-                <CardDescription>{comments.length}개 댓글</CardDescription>
-              </div>
-              <Button onClick={syncComments} disabled={loading}>
-                <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                동기화
-              </Button>
+        {/* Videos */}
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">비디오 목록</h2>
+          
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
-          </CardHeader>
-          <CardContent>
-            {comments.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <AlertCircle className="h-8 w-8 mx-auto mb-2" />
-                <p>댓글이 없습니다</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>작성자</TableHead>
-                    <TableHead>댓글</TableHead>
-                    <TableHead>좋아요</TableHead>
-                    <TableHead>작성일</TableHead>
-                    <TableHead>액션</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {comments.map((comment) => (
-                    <TableRow key={comment.id}>
-                      <TableCell className="font-medium">
-                        {comment.authorName}
-                      </TableCell>
-                      <TableCell className="max-w-md">
-                        <p className="line-clamp-2">{comment.text}</p>
-                      </TableCell>
-                      <TableCell>{comment.likeCount}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatRelativeTime(comment.publishedAt)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => deleteComment(comment.commentId)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      )}
+          ) : videos.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow">
+              <p className="text-gray-500">비디오가 없습니다.</p>
+              <p className="text-sm text-gray-400 mt-2">채널을 선택하거나 동기화하세요.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {videos.map((video: any) => (
+                <div
+                  key={video.id?.videoId || video.videoId}
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden"
+                >
+                  <img
+                    src={video.snippet?.thumbnails?.medium?.url || 'https://via.placeholder.com/320x180'}
+                    alt={video.snippet?.title || 'Video'}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                      {video.snippet?.title || 'Untitled'}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {new Date(video.snippet?.publishedAt).toLocaleDateString('ko-KR')}
+                    </p>
+                    {/* ✅ 여기 수정! */}
+                    <button
+                      onClick={() => {
+                        const vId = video.id?.videoId || video.videoId;
+                        const title = video.snippet?.title || 'Untitled';
+                        router.push(`/dashboard/youtube/comments?videoId=${vId}&title=${encodeURIComponent(title)}`);
+                      }}
+                      className="w-full px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg text-sm font-medium transition"
+                    >
+                      💬 댓글 보기
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-  )
+  );
 }
